@@ -10,7 +10,7 @@ const BIRTHDAY_DATA = {
   balloons: [
     {
       label: "01",
-      photo: "C:\Users\Asus\Downloads\WhatsApp Image 2026-11-19 at 3.49.25 PM.jpeg",
+      photo: "Assets/WhatsApp Image 2026-11-19 at 3.49.25 PM.jpeg",
       caption: "Salah satu hari favoritku bersamamu",
       message:
         "Dari sekian banyak hal yang terjadi, mengenal dan berjalan sejauh ini sama kamu tetap jadi bagian paling menenangkan di hidupku."
