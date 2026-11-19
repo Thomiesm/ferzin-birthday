@@ -31,7 +31,7 @@ const BIRTHDAY_DATA = {
     },
     {
       label: "04",
-      photo: "C:\Users\Asus\Downloads\WhatsApp Image 2026-11-19 at 3.49.24 PM.jpeg",
+      photo: "Assets/WhatsApp Image 2026-11-19 at 3.49.24 PM.jpeg",
       caption: "Untuk banyak tahun ke depan, Ferzin",
       message:
         "Selamat bertambah usia, sayang. Semoga dunia selalu lembut ke sayang, dan semoga aku masih terus diberi kesempatan menemani setiap bab barumu."
