@@ -24,7 +24,7 @@ const BIRTHDAY_DATA = {
     },
     {
       label: "03",
-      photo: "C:\Users\Asus\Downloads\WhatsApp Image 2026-11-19 at 3.49.24 PM (1).jpeg",
+      photo: "Assets/WhatsApp Image 2026-11-19 at 3.49.24 PM (1).jpeg",
       caption: "Langkah kecil yang kita lewati bareng",
       message:
         "Terima kasih sudah jadi rumah yang hangat, tempat cerita paling jujur, dan alasan kenapa hari-hari biasa terasa jauh lebih berarti."
