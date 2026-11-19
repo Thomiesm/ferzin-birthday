@@ -4,7 +4,7 @@ const BIRTHDAY_DATA = {
   headerSubtitle: "Untukmu, di malam kelahiranmu",
 
   // Lokasi file lagu di folder assets (ganti namanya kalau file kamu beda)
-  musicPath: "C:\Users\Asus\Downloads\Tulus - Perahu Kertas (Konser Salute Erwin Gutawa to 3 Female Songwriters).mp3",
+  musicPath: "Assets/Tulus - Perahu Kertas (Konser Salute Erwin Gutawa to 3 Female Songwriters).mp3",
 
   // 4 Balon Gosok + Foto Polaroid + Kata-kata Romantis
   balloons: [
