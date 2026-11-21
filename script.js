@@ -7,78 +7,151 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- 1. Populate Content dari data.js ---
-  document.getElementById("headerSubtitle").textContent = BIRTHDAY_DATA.headerSubtitle;
+  function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el && value !== undefined && value !== null) {
+      el.textContent = value;
+    }
+  }
 
+  // --- 0. Aktifkan Tombol Awal Lebih Dulu (Anti-Stuck) ---
+  const introOverlay = document.getElementById("introOverlay");
+  const startBtn = document.getElementById("startBtn");
   const bgMusic = document.getElementById("bgMusic");
-  bgMusic.src = BIRTHDAY_DATA.musicPath;
+  const musicToggle = document.getElementById("musicToggle");
 
-  const balloonsContainer = document.getElementById("balloonsContainer");
-  const totalBalloons = BIRTHDAY_DATA.balloons.length;
-  const openedSet = new Set();
-  let activeBalloonIndex = null;
-
-  document.getElementById("progressText").textContent = `0 dari ${totalBalloons} balon kenangan terbuka`;
-
-  BIRTHDAY_DATA.balloons.forEach((item, index) => {
-    const el = document.createElement("div");
-    el.className = "balloon-item";
-    el.dataset.index = index;
-    el.innerHTML = `
-      <div class="balloon-orb">${item.label}</div>
-      <div class="balloon-string"></div>
-    `;
-    el.addEventListener("click", () => {
-      haptic(25);
-      openScratchModal(index);
-    });
-    balloonsContainer.appendChild(el);
-  });
-
-  // --- 2. Web Audio API: Suara Gemeretak Api Unggun & Chime Perayaan ---
   let audioCtx = null;
   let fireNode = null;
   let fireGain = null;
   let isFireAudioOn = true;
   let isMusicOn = false;
+  let tiltX = 0;
+  let tiltY = 0;
 
   function initCampfireSound() {
-    if (audioCtx) {
-      if (audioCtx.state === "suspended") audioCtx.resume();
-      return;
-    }
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    audioCtx = new AudioContext();
+    try {
+      if (audioCtx) {
+        if (audioCtx.state === "suspended") audioCtx.resume();
+        return;
+      }
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      audioCtx = new AudioContext();
 
-    const bufferSize = audioCtx.sampleRate * 3;
-    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-    const data = buffer.getChannelData(0);
+      const bufferSize = audioCtx.sampleRate * 3;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
 
-    let lastOut = 0;
-    for (let i = 0; i < bufferSize; i++) {
-      const white = Math.random() * 2 - 1;
-      lastOut = (lastOut + 0.02 * white) / 1.02;
-      const crackle = Math.random() > 0.9965 ? Math.random() * 0.55 - 0.27 : 0;
-      data[i] = lastOut * 1.8 + crackle;
-    }
+      let lastOut = 0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        lastOut = (lastOut + 0.02 * white) / 1.02;
+        const crackle = Math.random() > 0.9965 ? Math.random() * 0.55 - 0.27 : 0;
+        data[i] = lastOut * 1.8 + crackle;
+      }
 
-    fireNode = audioCtx.createBufferSource();
-    fireNode.buffer = buffer;
-    fireNode.loop = true;
+      fireNode = audioCtx.createBufferSource();
+      fireNode.buffer = buffer;
+      fireNode.loop = true;
 
-    const filter = audioCtx.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.value = 620;
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.value = 620;
 
-    fireGain = audioCtx.createGain();
-    fireGain.gain.value = 0.22;
+      fireGain = audioCtx.createGain();
+      fireGain.gain.value = 0.22;
 
-    fireNode.connect(filter);
-    filter.connect(fireGain);
-    fireGain.connect(audioCtx.destination);
-    fireNode.start();
+      fireNode.connect(filter);
+      filter.connect(fireGain);
+      fireGain.connect(audioCtx.destination);
+      fireNode.start();
+    } catch (_) {}
   }
 
+  function handleOrientation(e) {
+    if (e.gamma === null || e.beta === null) return;
+    tiltX = Math.max(-25, Math.min(25, e.gamma)) * 0.65;
+    tiltY = Math.max(-25, Math.min(25, e.beta - 45)) * 0.45;
+  }
+
+  function enableTiltSensor() {
+    if (
+      typeof DeviceOrientationEvent !== "undefined" &&
+      typeof DeviceOrientationEvent.requestPermission === "function"
+    ) {
+      DeviceOrientationEvent.requestPermission()
+        .then((state) => {
+          if (state === "granted") {
+            window.addEventListener("deviceorientation", handleOrientation);
+          }
+        })
+        .catch(() => {});
+    } else {
+      window.addEventListener("deviceorientation", handleOrientation);
+    }
+  }
+
+  if (startBtn) {
+    startBtn.addEventListener("click", () => {
+      haptic([30, 40, 50]);
+      if (introOverlay) introOverlay.classList.add("fade-out");
+      initCampfireSound();
+      enableTiltSensor();
+      if (bgMusic && bgMusic.src) {
+        bgMusic.volume = 0.55;
+        bgMusic
+          .play()
+          .then(() => {
+            isMusicOn = true;
+            if (musicToggle) musicToggle.classList.add("active");
+          })
+          .catch(() => {});
+      }
+    });
+  }
+
+  // Cek jika data.js gagal dimuat karena typo tanda kutip / koma
+  if (typeof BIRTHDAY_DATA === "undefined") {
+    const warn = document.createElement("div");
+    warn.className = "wish-toast";
+    warn.textContent = "⚠️ Ada tanda kutip (\") atau koma yang terlewat di file data.js";
+    document.body.appendChild(warn);
+    return;
+  }
+
+  // --- 1. Populate Content dari data.js secara Aman ---
+  setText("headerSubtitle", BIRTHDAY_DATA.headerSubtitle);
+
+  if (bgMusic && BIRTHDAY_DATA.musicPath) {
+    bgMusic.src = BIRTHDAY_DATA.musicPath;
+  }
+
+  const balloonsContainer = document.getElementById("balloonsContainer");
+  const balloonsList = BIRTHDAY_DATA.balloons || [];
+  const totalBalloons = balloonsList.length;
+  const openedSet = new Set();
+  let activeBalloonIndex = null;
+
+  setText("progressText", `0 dari ${totalBalloons} balon kenangan terbuka`);
+
+  if (balloonsContainer) {
+    balloonsList.forEach((item, index) => {
+      const el = document.createElement("div");
+      el.className = "balloon-item";
+      el.dataset.index = index;
+      el.innerHTML = `
+        <div class="balloon-orb">${item.label}</div>
+        <div class="balloon-string"></div>
+      `;
+      el.addEventListener("click", () => {
+        haptic(25);
+        openScratchModal(index);
+      });
+      balloonsContainer.appendChild(el);
+    });
+  }
+
+  // --- 2. Kontrol Audio & Suara Kembang Api ---
   function playFireworkPopSound() {
     if (!audioCtx) return;
     try {
@@ -101,73 +174,38 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const fireAudioToggle = document.getElementById("fireAudioToggle");
-  const musicToggle = document.getElementById("musicToggle");
-
-  fireAudioToggle.addEventListener("click", () => {
-    haptic(20);
-    initCampfireSound();
-    isFireAudioOn = !isFireAudioOn;
-    if (fireGain) {
-      fireGain.gain.setTargetAtTime(isFireAudioOn ? 0.22 : 0, audioCtx.currentTime, 0.2);
-    }
-    fireAudioToggle.classList.toggle("active", isFireAudioOn);
-  });
-
-  musicToggle.addEventListener("click", () => {
-    haptic(20);
-    if (isMusicOn) {
-      bgMusic.pause();
-      isMusicOn = false;
-      musicToggle.classList.remove("active");
-    } else {
-      bgMusic.play().then(() => {
-        isMusicOn = true;
-        musicToggle.classList.add("active");
-      }).catch(() => {});
-    }
-  });
-
-  // --- 3. Layar Pembuka & Sensor Miring HP ---
-  const introOverlay = document.getElementById("introOverlay");
-  let tiltX = 0;
-  let tiltY = 0;
-
-  function enableTiltSensor() {
-    if (
-      typeof DeviceOrientationEvent !== "undefined" &&
-      typeof DeviceOrientationEvent.requestPermission === "function"
-    ) {
-      DeviceOrientationEvent.requestPermission()
-        .then((state) => {
-          if (state === "granted") {
-            window.addEventListener("deviceorientation", handleOrientation);
-          }
-        })
-        .catch(() => {});
-    } else {
-      window.addEventListener("deviceorientation", handleOrientation);
-    }
+  if (fireAudioToggle) {
+    fireAudioToggle.addEventListener("click", () => {
+      haptic(20);
+      initCampfireSound();
+      isFireAudioOn = !isFireAudioOn;
+      if (fireGain && audioCtx) {
+        fireGain.gain.setTargetAtTime(isFireAudioOn ? 0.22 : 0, audioCtx.currentTime, 0.2);
+      }
+      fireAudioToggle.classList.toggle("active", isFireAudioOn);
+    });
   }
 
-  function handleOrientation(e) {
-    if (e.gamma === null || e.beta === null) return;
-    tiltX = Math.max(-25, Math.min(25, e.gamma)) * 0.65;
-    tiltY = Math.max(-25, Math.min(25, e.beta - 45)) * 0.45;
+  if (musicToggle && bgMusic) {
+    musicToggle.addEventListener("click", () => {
+      haptic(20);
+      if (isMusicOn) {
+        bgMusic.pause();
+        isMusicOn = false;
+        musicToggle.classList.remove("active");
+      } else {
+        bgMusic
+          .play()
+          .then(() => {
+            isMusicOn = true;
+            musicToggle.classList.add("active");
+          })
+          .catch(() => {});
+      }
+    });
   }
 
-  document.getElementById("startBtn").addEventListener("click", () => {
-    haptic([30, 40, 50]);
-    introOverlay.classList.add("fade-out");
-    initCampfireSound();
-    enableTiltSensor();
-    bgMusic.volume = 0.55;
-    bgMusic.play().then(() => {
-      isMusicOn = true;
-      musicToggle.classList.add("active");
-    }).catch(() => {});
-  });
-
-  // --- 4. Canvas Langit Malam, Jejak Cahaya Jari & Bintang ---
+  // --- 3. Canvas Langit Malam, Jejak Cahaya Jari & Bintang ---
   const bgCanvas = document.getElementById("bgCanvas");
   const ctx = bgCanvas.getContext("2d");
   let width = (bgCanvas.width = window.innerWidth);
@@ -230,8 +268,8 @@ document.addEventListener("DOMContentLoaded", () => {
       life: 1
     });
 
-    const wish =
-      BIRTHDAY_DATA.starWishes[Math.floor(Math.random() * BIRTHDAY_DATA.starWishes.length)];
+    const wishes = BIRTHDAY_DATA.starWishes || ["✨ Semoga semua doa baikmu terwujud."];
+    const wish = wishes[Math.floor(Math.random() * wishes.length)];
     showWishToast(wish);
   }
 
@@ -248,7 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.addEventListener(
     "touchmove",
     (e) => {
-      if (!introOverlay.classList.contains("fade-out")) return;
+      if (introOverlay && !introOverlay.classList.contains("fade-out")) return;
       if (e.target.closest("#scratchCanvas") || e.target.closest(".modal-card")) return;
       const t = e.touches[0];
       if (!t) return;
@@ -268,7 +306,7 @@ document.addEventListener("DOMContentLoaded", () => {
       e.target.closest(".campfire") ||
       e.target.closest(".envelope-card") ||
       e.target.closest(".modal-card") ||
-      !introOverlay.classList.contains("fade-out")
+      (introOverlay && !introOverlay.classList.contains("fade-out"))
     ) {
       return;
     }
@@ -363,7 +401,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   animateBackground();
 
-  // --- 4B. Overlay Canvas: Piñata Kiri-Kanan & Kembang Api 3 Detik ---
+  // --- 4. Overlay Canvas: Piñata Kiri-Kanan & Kembang Api 3 Detik ---
   const fxCanvas = document.createElement("canvas");
   fxCanvas.id = "celebrationCanvas";
   Object.assign(fxCanvas.style, {
@@ -402,7 +440,6 @@ document.addEventListener("DOMContentLoaded", () => {
     "#c084fc"
   ];
 
-  // Tembakan Piñata dari Sisi Kiri & Kanan Layar
   function firePinataCannons() {
     const origins = [
       { x: -6, y: height * 0.72, dir: 1 },
@@ -411,7 +448,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     origins.forEach((origin) => {
       for (let i = 0; i < 48; i++) {
-        const spreadAngle = (Math.random() * 0.95 + 0.35); // Sudut ke atas & ke tengah layar
+        const spreadAngle = Math.random() * 0.95 + 0.35;
         const speed = Math.random() * 11 + 6.5;
         pinataConfetti.push({
           x: origin.x,
@@ -435,7 +472,6 @@ document.addEventListener("DOMContentLoaded", () => {
     startFxLoop();
   }
 
-  // Ledakan Kembang Api di Langit
   function explodeFirework(x, y, baseColor) {
     playFireworkPopSound();
     haptic(18);
@@ -461,7 +497,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Luncurkan Roket Kembang Api
   function launchFireworkRocket() {
     const startX = width * (0.2 + Math.random() * 0.6);
     const targetY = height * (0.14 + Math.random() * 0.26);
@@ -480,15 +515,11 @@ document.addEventListener("DOMContentLoaded", () => {
     startFxLoop();
   }
 
-  // Jalankan Piñata + Kembang Api Terus-Menerus Selama 3 Detik
   function triggerFullCelebration() {
     haptic([45, 45, 70, 40, 100]);
-
-    // 1. Tembakan Piñata Gelombang 1 & 2 dari Kiri-Kanan
     firePinataCannons();
     setTimeout(() => firePinataCannons(), 380);
 
-    // 2. Ledakan Kembang Api Instan di Awal + Luncuran Beruntun Selama 3 Detik
     explodeFirework(width * 0.3, height * 0.24, "#fbbf24");
     setTimeout(() => explodeFirework(width * 0.72, height * 0.22, "#f472b6"), 180);
 
@@ -516,14 +547,13 @@ document.addEventListener("DOMContentLoaded", () => {
   function animateCelebrationFx() {
     fxCtx.clearRect(0, 0, width, height);
 
-    // Update & Gambar Piñata Confetti
     for (let i = pinataConfetti.length - 1; i >= 0; i--) {
       const c = pinataConfetti[i];
       c.wobble += c.wobbleSpeed;
       c.x += c.vx + Math.sin(c.wobble) * 1.1;
       c.y += c.vy;
-      c.vy += 0.28; // Gravitasi
-      c.vx *= 0.985; // Hambatan udara
+      c.vy += 0.28;
+      c.vx *= 0.985;
       c.rot += c.rotSpeed;
       c.life -= c.decay;
 
@@ -549,7 +579,6 @@ document.addEventListener("DOMContentLoaded", () => {
       fxCtx.restore();
     }
 
-    // Update & Gambar Roket Kembang Api
     for (let i = fireworkRockets.length - 1; i >= 0; i--) {
       const r = fireworkRockets[i];
       r.x += r.vx;
@@ -570,7 +599,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // Update & Gambar Percikan Kembang Api
     for (let i = fireworkSparks.length - 1; i >= 0; i--) {
       const s = fireworkSparks[i];
       s.prevX = s.x;
@@ -618,12 +646,307 @@ document.addEventListener("DOMContentLoaded", () => {
   let holdInterval = null;
 
   function stokeFireOnce() {
+    if (!campfire) return;
     haptic(25);
     campfire.classList.add("stoked");
     for (let i = 0; i < 18; i++) spawnEmber(true);
 
-    fireWhisper.style.opacity = 0;
-    setTimeout(() => {
-      fireWhisper.textContent = BIRTHDAY_DATA.fireWhispers[whisperIdx];
-      whisperIdx = (whisperIdx + 1) % BIRTHDAY_DATA.fireWhispers.length;
-      fireWhisper.style.opacity = 1;
+    const whispers = BIRTHDAY_DATA.fireWhispers || [];
+    if (fireWhisper && whispers.length > 0) {
+      fireWhisper.style.opacity = 0;
+      setTimeout(() => {
+        fireWhisper.textContent = whispers[whisperIdx];
+        whisperIdx = (whisperIdx + 1) % whispers.length;
+        fireWhisper.style.opacity = 1;
+      }, 160);
+    }
+
+    setTimeout(() => campfire.classList.remove("stoked"), 650);
+  }
+
+  function startHoldingFire(e) {
+    if (e.cancelable) e.preventDefault();
+    initCampfireSound();
+    campfire.classList.add("holding");
+    document.body.classList.add("fire-holding");
+    stokeFireOnce();
+
+    clearInterval(holdInterval);
+    holdInterval = setInterval(() => {
+      haptic(12);
+      for (let i = 0; i < 6; i++) spawnEmber(true);
+    }, 140);
+  }
+
+  function stopHoldingFire() {
+    if (!campfire || !campfire.classList.contains("holding")) return;
+    campfire.classList.remove("holding");
+    document.body.classList.remove("fire-holding");
+    clearInterval(holdInterval);
+  }
+
+  if (campfire) {
+    campfire.addEventListener("touchstart", startHoldingFire, { passive: false });
+    campfire.addEventListener("touchend", stopHoldingFire);
+    campfire.addEventListener("touchcancel", stopHoldingFire);
+    campfire.addEventListener("mousedown", startHoldingFire);
+    window.addEventListener("mouseup", stopHoldingFire);
+  }
+
+  // --- 6. Fitur Scratch Balon ---
+  const scratchModal = document.getElementById("scratchModal");
+  const scratchWrapper = document.getElementById("scratchWrapper");
+  const scratchCanvas = document.getElementById("scratchCanvas");
+  const sCtx = scratchCanvas ? scratchCanvas.getContext("2d") : null;
+  const polaroidPhoto = document.getElementById("polaroidPhoto");
+  const polaroidFallback = document.getElementById("polaroidFallback");
+  let isDrawing = false;
+  let isRevealed = false;
+  let lastScratchVibe = 0;
+
+  if (polaroidPhoto) {
+    polaroidPhoto.onerror = () => {
+      polaroidPhoto.style.display = "none";
+      if (polaroidFallback) polaroidFallback.classList.remove("hidden");
+    };
+  }
+
+  function setupScratchCover(label) {
+    if (!scratchCanvas || !sCtx) return;
+    isRevealed = false;
+    if (scratchWrapper) scratchWrapper.classList.remove("is-open");
+    scratchCanvas.classList.remove("cleared");
+    sCtx.globalCompositeOperation = "source-over";
+
+    const grad = sCtx.createLinearGradient(0, 0, scratchCanvas.width, scratchCanvas.height);
+    grad.addColorStop(0, "#d97706");
+    grad.addColorStop(0.5, "#f59e0b");
+    grad.addColorStop(1, "#b45309");
+    sCtx.fillStyle = grad;
+    sCtx.fillRect(0, 0, scratchCanvas.width, scratchCanvas.height);
+
+    sCtx.fillStyle = "rgba(255, 255, 255, 0.14)";
+    for (let i = 0; i < 100; i++) {
+      sCtx.beginPath();
+      sCtx.arc(
+        Math.random() * scratchCanvas.width,
+        Math.random() * scratchCanvas.height,
+        Math.random() * 2 + 0.5,
+        0,
+        Math.PI * 2
+      );
+      sCtx.fill();
+    }
+
+    sCtx.fillStyle = "#fffbeb";
+    sCtx.font = "italic 600 22px 'Cormorant Garamond', serif";
+    sCtx.textAlign = "center";
+    sCtx.fillText(`Gosok Balon ${label}`, scratchCanvas.width / 2, scratchCanvas.height / 2 - 6);
+
+    sCtx.font = "400 13px 'Plus Jakarta Sans', sans-serif";
+    sCtx.fillStyle = "rgba(255, 251, 235, 0.9)";
+    sCtx.fillText("Usap 2-3 kali di sini", scratchCanvas.width / 2, scratchCanvas.height / 2 + 18);
+  }
+
+  function openScratchModal(index) {
+    activeBalloonIndex = index;
+    const item = balloonsList[index];
+    if (!item || !scratchModal) return;
+
+    setText("scratchTitle", `Balon Cahaya ${item.label}`);
+    setText(
+      "scratchHint",
+      openedSet.has(index)
+        ? "Kenangan ini sudah terbuka"
+        : "Usap perlahan lapisan emas di bawah ini"
+    );
+
+    if (polaroidPhoto) {
+      polaroidPhoto.style.display = "block";
+      polaroidPhoto.src = item.photo;
+    }
+    if (polaroidFallback) polaroidFallback.classList.add("hidden");
+    setText("polaroidCaption", item.caption);
+    setText("balloonMessage", item.message);
+
+    scratchModal.classList.remove("hidden");
+    const card = scratchModal.querySelector(".modal-card");
+    if (card) card.scrollTop = 0;
+
+    if (openedSet.has(index)) {
+      if (scratchCanvas) scratchCanvas.classList.add("cleared");
+      if (scratchWrapper) scratchWrapper.classList.add("is-open");
+      isRevealed = true;
+    } else {
+      setupScratchCover(item.label);
+    }
+  }
+
+  function getPointerPos(e) {
+    const rect = scratchCanvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return {
+      x: (clientX - rect.left) * (scratchCanvas.width / rect.width),
+      y: (clientY - rect.top) * (scratchCanvas.height / rect.height)
+    };
+  }
+
+  function scratchAt(x, y) {
+    if (isRevealed || !sCtx) return;
+    sCtx.globalCompositeOperation = "destination-out";
+    sCtx.beginPath();
+    sCtx.arc(x, y, 48, 0, Math.PI * 2);
+    sCtx.fill();
+
+    const now = Date.now();
+    if (now - lastScratchVibe > 90) {
+      haptic(8);
+      lastScratchVibe = now;
+    }
+
+    checkScratchPercentage();
+  }
+
+  function checkScratchPercentage() {
+    const pixels = sCtx.getImageData(0, 0, scratchCanvas.width, scratchCanvas.height).data;
+    let transparent = 0;
+    const step = 16;
+    for (let i = 3; i < pixels.length; i += 4 * step) {
+      if (pixels[i] === 0) transparent++;
+    }
+    const totalSampled = pixels.length / (4 * step);
+    if (transparent / totalSampled > 0.22) {
+      isRevealed = true;
+      haptic([35, 50, 70]);
+      scratchCanvas.classList.add("cleared");
+      if (scratchWrapper) scratchWrapper.classList.add("is-open");
+      setText("scratchHint", "Geser ke bawah untuk baca selengkapnya ✨");
+      markBalloonOpened(activeBalloonIndex);
+    }
+  }
+
+  function markBalloonOpened(index) {
+    if (index === null || openedSet.has(index)) return;
+    openedSet.add(index);
+
+    if (balloonsContainer && balloonsContainer.children[index]) {
+      balloonsContainer.children[index].classList.add("opened");
+    }
+
+    const count = openedSet.size;
+    setText(
+      "progressText",
+      count === totalBalloons
+        ? "Semua balon terbuka! Segel surat utama sudah terbuka ✨"
+        : `${count} dari ${totalBalloons} balon kenangan terbuka`
+    );
+
+    if (count === totalBalloons) {
+      const letterCard = document.getElementById("letterCard");
+      if (letterCard) {
+        letterCard.classList.remove("locked");
+        letterCard.classList.add("unlocked");
+      }
+      setText("letterHint", "Segel lilin terbuka — ketuk huruf F untuk membaca suratmu");
+    }
+  }
+
+  if (scratchCanvas) {
+    scratchCanvas.addEventListener("mousedown", (e) => {
+      isDrawing = true;
+      const pos = getPointerPos(e);
+      scratchAt(pos.x, pos.y);
+    });
+    window.addEventListener("mouseup", () => (isDrawing = false));
+    scratchCanvas.addEventListener("mousemove", (e) => {
+      if (!isDrawing) return;
+      const pos = getPointerPos(e);
+      scratchAt(pos.x, pos.y);
+    });
+
+    scratchCanvas.addEventListener(
+      "touchstart",
+      (e) => {
+        if (e.cancelable) e.preventDefault();
+        isDrawing = true;
+        const pos = getPointerPos(e);
+        scratchAt(pos.x, pos.y);
+      },
+      { passive: false }
+    );
+    scratchCanvas.addEventListener("touchend", () => (isDrawing = false));
+    scratchCanvas.addEventListener(
+      "touchmove",
+      (e) => {
+        if (e.cancelable) e.preventDefault();
+        if (!isDrawing) return;
+        const pos = getPointerPos(e);
+        scratchAt(pos.x, pos.y);
+      },
+      { passive: false }
+    );
+  }
+
+  ["closeScratchModal", "closeScratchBackdrop"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el && scratchModal) el.addEventListener("click", () => scratchModal.classList.add("hidden"));
+  });
+
+  // --- 7. Fitur Bakar Rasa Lelah ---
+  const worryModal = document.getElementById("worryModal");
+  const worryFormArea = document.getElementById("worryFormArea");
+  const worryComfortArea = document.getElementById("worryComfortArea");
+  const worryInput = document.getElementById("worryInput");
+  const burningPaper = document.getElementById("burningPaper");
+
+  const worryBtn = document.getElementById("worryBtn");
+  if (worryBtn && worryModal) {
+    worryBtn.addEventListener("click", () => {
+      haptic(20);
+      if (worryInput) worryInput.value = "";
+      if (worryFormArea) worryFormArea.classList.remove("hidden");
+      if (worryComfortArea) worryComfortArea.classList.add("hidden");
+      if (burningPaper) burningPaper.classList.remove("burn-away");
+      worryModal.classList.remove("hidden");
+    });
+  }
+
+  const burnWorryBtn = document.getElementById("burnWorryBtn");
+  if (burnWorryBtn) {
+    burnWorryBtn.addEventListener("click", () => {
+      const text = worryInput ? worryInput.value.trim() : "";
+      if (!text) return;
+
+      haptic([40, 30, 80]);
+      if (worryFormArea) worryFormArea.classList.add("hidden");
+      if (worryComfortArea) worryComfortArea.classList.remove("hidden");
+      if (burningPaper) burningPaper.textContent = `"${text}"`;
+
+      const replies = BIRTHDAY_DATA.worryComfortReplies || ["Kamu sudah hebat hari ini."];
+      const reply = replies[Math.floor(Math.random() * replies.length)];
+      setText("comfortText", "");
+
+      setTimeout(() => {
+        if (burningPaper) burningPaper.classList.add("burn-away");
+        for (let i = 0; i < 24; i++) spawnEmber(true);
+      }, 300);
+
+      setTimeout(() => {
+        setText("comfortText", reply);
+      }, 1300);
+    });
+  }
+
+  ["closeWorryModal", "closeWorryBackdrop"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el && worryModal) el.addEventListener("click", () => worryModal.classList.add("hidden"));
+  });
+
+  // --- 8. Surat Utama & Tiket Undangan Studio Melukis ---
+  const letterModal = document.getElementById("letterModal");
+  const letterBody = document.getElementById("letterBody");
+  const finalLetter = BIRTHDAY_DATA.finalLetter || {};
+
+  setText("letterGreeting", finalLetter.greeting);
+  setText
