@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>For My Love — At Your Birthday</title>
+  <title> Untuk Sayang </title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Plus+Jakarta+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -14,7 +14,7 @@
   <canvas id="bgCanvas"></canvas>
   <div class="ambient-glow"></div>
 
-  <!-- Layar Pembuka (Sekaligus memicu izin audio browser) -->
+  <!-- Layar Pembuka -->
   <div id="introOverlay" class="intro-overlay">
     <div class="intro-box">
       <p class="intro-tag">Sebuah ruang kecil di malam yang tenang</p>
@@ -28,7 +28,7 @@
 
   <!-- Kontrol Audio di Pojok Kanan Atas -->
   <header class="top-bar">
-    <div class="brand-date" id="headerSubtitle">Malam Spesial Sayang</div>
+    <div class="brand-date" id="headerSubtitle">Malam Spesial Sayangku</div>
     <div class="audio-controls">
       <button id="fireAudioToggle" class="icon-btn active" title="Suara Api Unggun">
         🔥 <span>Api</span>
@@ -41,18 +41,17 @@
 
   <!-- Area Utama -->
   <main class="stage">
-    <!-- Petunjuk Interaksi Langit -->
-    <p class="sky-hint" id="skyHint">✨ Sentuh langit gelap untuk menjatuhkan bintang harapan</p>
+    <p class="sky-hint" id="skyHint">✨ Usap layar, ketuk 2x, atau tahan api unggunnya</p>
 
-    <!-- Balon Cahaya untuk Digosok -->
+    <!-- 5 Balon Cahaya untuk Digosok -->
     <section class="balloons-zone">
       <div id="balloonsContainer" class="balloons-grid"></div>
-      <p class="progress-text" id="progressText">0 dari 4 balon kenangan terbuka</p>
+      <p class="progress-text" id="progressText">0 dari 5 balon kenangan terbuka</p>
     </section>
 
     <!-- Area Api Unggun Interaktif -->
     <section class="campfire-zone">
-      <div id="fireWhisper" class="fire-whisper">Sentuh apinya untuk menghangatkan malam...</div>
+      <div id="fireWhisper" class="fire-whisper">Sentuh & tahan apinya untuk menghangatkan malam...</div>
 
       <div id="campfire" class="campfire" role="button" tabindex="0" aria-label="Api Unggun Interaktif">
         <div class="flame-halo"></div>
@@ -70,32 +69,31 @@
       </div>
 
       <button id="worryBtn" class="btn-subtle">
-        🍂 Titipkan rasa capek sayang ke api
+        🍂 Titipkan rasa capekmu ke api
       </button>
     </section>
 
-    <!-- Amplop Surat Utama di Bagian Bawah -->
+    <!-- Amplop Surat Utama -->
     <section class="letter-zone">
       <div id="letterCard" class="envelope-card locked">
         <button id="sealBtn" class="wax-seal" aria-label="Buka Surat">F</button>
         <div class="envelope-info">
-          <h3>Surat Ulang Tahun untuk Sayang</h3>
-          <p id="letterHint">Buka semua balon cahaya di atas untuk melepas segel surat ini</p>
+          <h3>A Letter For My Love</h3>
+          <p id="letterHint">Buka kelima balon cahaya di atas untuk melepas segel surat ini</p>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- Modal Scratch Balon + Foto Polaroid -->
+  <!-- Modal Scratch Balon + Foto Polaroid (Scrollable di HP) -->
   <div id="scratchModal" class="modal hidden">
     <div class="modal-backdrop" id="closeScratchBackdrop"></div>
     <div class="modal-card scratch-card">
       <button id="closeScratchModal" class="modal-close">&times;</button>
       <span class="modal-badge" id="scratchTitle">Balon #1</span>
-      <p class="scratch-instruction" id="scratchHint">Gosok perlahan lapisan emas di bawah ini</p>
+      <p class="scratch-instruction" id="scratchHint">Usap perlahan lapisan emas di bawah ini</p>
 
-      <div class="scratch-wrapper">
-        <!-- Konten Tersembunyi di Balik Scratch -->
+      <div id="scratchWrapper" class="scratch-wrapper">
         <div class="revealed-content">
           <div class="polaroid-frame">
             <img id="polaroidPhoto" src="" alt="Kenangan bersama Sayang" />
@@ -108,8 +106,7 @@
           <p id="balloonMessage" class="romantic-quote"></p>
         </div>
 
-        <!-- Lapisan Canvas yang Digosok -->
-        <canvas id="scratchCanvas" width="320" height="390"></canvas>
+        <canvas id="scratchCanvas" width="320" height="380"></canvas>
       </div>
     </div>
   </div>
@@ -123,9 +120,9 @@
 
       <div id="worryFormArea">
         <p class="modal-sub">
-          Tulis satu hal yang belakangan bikin sayang capek atau kepikiran. Biar api malam ini yang membakarnya habis.
+          Tulis satu hal yang belakangan bikin kamu capek atau kepikiran. Biar api malam ini yang membakarnya habis.
         </p>
-        <textarea id="worryInput" rows="3" placeholder="Contoh: Capek di gara garain aku, atau Capek cakep terus"></textarea>
+        <textarea id="worryInput" rows="3" placeholder="Contoh: Capek sama tugas minggu ini, atau lagi banyak pikiran..."></textarea>
         <button id="burnWorryBtn" class="btn-warm full-width">Bakar & Lepaskan</button>
       </div>
 
@@ -136,7 +133,7 @@
     </div>
   </div>
 
-  <!-- Modal Surat Utama -->
+  <!-- Modal Surat Utama + Tombol Kejutan Akhir -->
   <div id="letterModal" class="modal hidden">
     <div class="modal-backdrop" id="closeLetterBackdrop"></div>
     <div class="modal-card letter-modal-card">
@@ -145,14 +142,56 @@
         <p id="letterGreeting" class="letter-greeting"></p>
         <div id="letterBody" class="letter-body"></div>
         <p id="letterSignature" class="letter-signature"></p>
+
+        <div class="gift-trigger-box">
+          <p class="gift-teaser">Psst... masih ada satu hadiah kecil lagi buat kamu</p>
+          <button id="openGiftBtn" class="btn-warm full-width">
+            🎁 Buka Kejutan Terakhir
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Audio Lagu Latar -->
-  <audio id="bgMusic" loop preload="auto"></audio>
+  <!-- Modal Tiket Undangan Studio Melukis -->
+  <div id="ticketModal" class="modal hidden">
+    <div class="modal-backdrop" id="closeTicketBackdrop"></div>
+    <div class="modal-card ticket-modal-card">
+      <button id="closeTicketModal" class="modal-close">&times;</button>
 
-  <script src="data.js"></script>
-  <script src="script.js"></script>
-</body>
-</html>
+      <div class="art-ticket">
+        <div class="ticket-top">
+          <span class="ticket-tag" id="ticketTag">SPECIAL BIRTHDAY INVITATION</span>
+          <h3 id="ticketTitle">Painting Date</h3>
+          <p class="ticket-subtitle" id="ticketIntro"></p>
+
+          <div class="ticket-details-grid">
+            <div class="detail-item">
+              <span class="detail-label">📍 Tempat</span>
+              <strong class="detail-value" id="ticketVenue">SProject.ArtStudio</strong>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">🕙 Waktu</span>
+              <strong class="detail-value" id="ticketTime">Pukul 10.00 WIB</strong>
+            </div>
+          </div>
+          <p class="ticket-date-note" id="ticketDateNote"></p>
+        </div>
+
+        <!-- Garis Sobekan Tiket -->
+        <div class="ticket-divider">
+          <span class="notch notch-left"></span>
+          <span class="dashed-line"></span>
+          <span class="notch notch-right"></span>
+        </div>
+
+        <!-- Bagian Dress Code + Animasi Kaos Putih & Celana Krem -->
+        <div class="ticket-bottom">
+          <span class="dresscode-badge">✨ DRESS CODE</span>
+          <p class="dresscode-text" id="dresscodeText">Kaos Putih & Celana Panjang / Pendek Krem</p>
+
+          <div class="outfit-showcase" aria-label="Ilustrasi Dress Code Kaos Putih dan Celana Krem">
+            <!-- Kaos Putih -->
+            <div class="outfit-piece piece-shirt">
+              <svg viewBox="0 0 100 95" class="outfit-svg">
+                <path d="M2
