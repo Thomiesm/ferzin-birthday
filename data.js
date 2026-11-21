@@ -28,7 +28,7 @@ const BIRTHDAY_DATA = {
     },
     {
       label: "04",
-      photo: "assets/foto4.jpg",
+      photo: "Assets/WhatsApp Image 2026-11-21 at 8.50.59 AM.jpeg",
       caption: "Setiap cerita sederhana sama sayang",
       message:
         "Nggak perlu hal yang selalu mewah—duduk ngobrol berdua atau ketawa soal hal receh sama sayang aja aku udah bersyukur bangett."
