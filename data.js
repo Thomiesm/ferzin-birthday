@@ -8,16 +8,16 @@ const BIRTHDAY_DATA = {
     {
       label: "01",
       photo: "assets/foto1.jpg",
-      caption: "Salah satu hari favoritku bersamamu",
+      caption: "Hari FavoriteKu ya Sama Sayang",
       message:
-        "Dari sekian banyak hal yang terjadi, mengenal dan berjalan sejauh ini sama kamu tetap jadi bagian paling menenangkan di hidupku."
+        "Dari banyak hal yang terjadi, mulai dari kenalan sampe saat ini, sayang tetap jadi bagian paling menenangkan di hidupku."
     },
     {
       label: "02",
       photo: "assets/foto2.jpg",
-      caption: "Senyum yang selalu aku syukuri",
+      caption: "Ke Gemeccc-an yang selalu bikin kangen",
       message:
-        "Di hari ulang tahunmu ini, aku cuma mau kamu ingat satu hal: kamu berharga, bahkan di hari-hari saat kamu merasa sedang tidak baik-baik saja."
+        "Di hari ulang tahun sayang, aku cuma mau sayang ingat satu hal: sayang sangat berharga, bahkan di hari-hari saat kamu merasa sedang tidak baik-baik saja."
     },
     {
       label: "03",
