@@ -1,27 +1,27 @@
 const BIRTHDAY_DATA = {
   partnerName: "Sayang",
   headerSubtitle: "Untuk sayang, di hari lahir sayang",
-  musicPath: "assets/lagu.mp3",
+  musicPath: "Assets/Tulus - Perahu Kertas (Konser Salute Erwin Gutawa to 3 Female Songwriters).mp3",
 
   // 5 Balon Gosok + Foto Polaroid + Kata-kata Romantis
   balloons: [
     {
       label: "01",
-      photo: "assets/foto1.jpg",
+      photo: "Assets/WhatsApp Image 2026-11-19 at 3.49.25 PM.jpeg",
       caption: "Hari FavoriteKu ya Sama Sayang",
       message:
         "Dari banyak hal yang terjadi, mulai dari kenalan sampe saat ini, sayang tetap jadi bagian paling menenangkan dalam hidupku."
     },
     {
       label: "02",
-      photo: "assets/foto2.jpg",
+      photo: "Assets/WhatsApp Image 2026-11-19 at 3.49.24 PM (2).jpeg",
       caption: "Ke Gemeccc-an yang selalu bikin kangen",
       message:
         "Di hari ulang tahun sayang, aku cuma mau sayang ingat satu hal: sayang sangat berharga, bahkan di hari-hari pas sayang merasa sedang tidak baik-baik saja."
     },
     {
       label: "03",
-      photo: "assets/foto3.jpg",
+      photo: "Assets/WhatsApp Image 2026-11-19 at 3.49.24 PM (1).jpeg",
       caption: "Langkah kecil yang kita lewati bareng",
       message:
         "Terima kasih sudah jadi rumah yang hangat, tempat cerita paling jujur, dan alasan kenapa hari-hari biasa terasa jauh lebih berarti."
@@ -35,7 +35,7 @@ const BIRTHDAY_DATA = {
     },
     {
       label: "05",
-      photo: "assets/foto5.jpg",
+      photo: "Assets/WhatsApp Image 2026-11-19 at 3.49.24 PM.jpeg",
       caption: "Untuk banyak tahun ke depan, Sayang",
       message:
         "Selamat bertambah usia, sayang. Semoga dunia selalu lembut ke sayang, dan semoga aku masih terus diberi kesempatan menemani setiap bab baru ammu."
