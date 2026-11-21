@@ -65,9 +65,9 @@ const BIRTHDAY_DATA = {
   finalLetter: {
     greeting: "Hepii birthday cintaaa",
     paragraphs: [
-      "Mungkin halaman kecil ini sederhana, tapi setiap cahaya di dalamnya aku buat khusus untuk merayakan hari di mana orang paling berarti buatku lahir ke dunia.",
-      "Aku tahu tidak setiap hari berjalan mudah. Ada hari-hari yang melelahkan, ada hal-hal yang kadang bikin pikiran sayang penuh. Tapi maw sayang tahu betapa bangganya aku ngeliat sayang terus melangkah sampai di titik ini.",
-      "Di usia sayang ini, aku ndak minta sayang jadi sempurna. aku cuma maw sayang jadi Ferzin yang apa adanya—dengan segala tawa, cerita, dan kehangatan yang selalu bikin aku merasa pulang.",
+      "Mungkin web ini biaca caja, tapi setiap cahaya, bintang, dan semua yang ada di dalamnya aku buat khusus untuk merayakan hari di mana orang paling berarti buatku lahir ke dunia.",
+      "Aku tahu tidak setiap hari berjalan mudah. Ada hari-hari yang bikin energi sayang habic, ada hal-hal yang kadang bikin pikiran sayang penuh. Tapi aku maw sayang tahu betapa bangganya aku ngeliat sayang terus melangkah sampai sejauh ini apalagi tetep sama aku.",
+      "Di ulang tahun sayang ini, aku ndak minta sayang jadi sempurna. aku cuma maw sayang jadi Ferzin yang apa adanya dengan segala tawa, cerita (lebih ke gossip cih), dan kehangatan yang selalu bikin aku merasa pulang.",
       "Selamat ulang tahun sekali lagi. Semoga bahagia selalu menemukan jalan pulang ke arahmu."
     ],
     signature: "Dengan seluruh sayangku, untukmu MWAHHHH."
